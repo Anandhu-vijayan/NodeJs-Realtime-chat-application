@@ -1,96 +1,134 @@
 import React, { useState } from 'react';
 import axios from '../axios';
 import "../styles/output.css"; // Ensure Tailwind is set up correctly
+import Modal from './Modal';
+const LoginForm = () => {
+  const [emailId, setEmailId] = useState('');
+  const [password, setPassword] = useState('');
+  const [repassword, setRePassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
-const ForgotPassword = () => {
-    const [emailId, setEmailId] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [emailError, setEmailError] = useState('');
-    const [passwordError, setPasswordError] = useState('');
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setEmailError('Invalid email format.');
-            return false;
-        }
-        setEmailError('');
-        return true;
-    };
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^\s]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setPasswordError('Password must be at least 8 characters long, contain one uppercase letter, one number, and no spaces.');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
 
-    const validatePassword = (password) => {
-        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^\s]).{8,}$/;
-        if (!passwordRegex.test(password)) {
-            setPasswordError('Password must be at least 8 characters long, contain one uppercase letter, one number, and no spaces.');
-            return false;
-        }
-        setPasswordError('');
-        return true;
-    };
+  const handleLogin = async () => {
+    setErrorMessage(''); // Clear previous error message
 
-    const handleSignup = async () => {
-        setEmailError('');
-        setPasswordError('');
-        setErrorMessage('');
-        setSuccessMessage('');
+    // Validate email
+    if (!validateEmail(emailId)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
 
-        const isEmailValid = validateEmail(emailId);
-        const isPasswordValid = validatePassword(password);
+    // Validate password
+    if (!validatePassword(password)) {
+      return;
+    }
 
-        if (!isEmailValid || !isPasswordValid) {
-            return;
-        }
+    // Check if passwords match
+    if (password !== repassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
 
-        try {
-            const response = await axios.post('/signup', { emailId, password });
-            if (response.data.message === 'Email Already Exists') {
-                setEmailError('Email already exists. Please log in.');
-            } else {
-                setSuccessMessage('OTP sent successfully to email');
-                setTimeout(() => setSuccessMessage(''), 5000);
-            }
-        } catch (error) {
-            console.error('Error sending OTP:', error.response ? error.response.data : error.message);
-            setErrorMessage('Failed to send OTP. Please try again.');
-            setTimeout(() => setErrorMessage(''), 5000);
-        }
-    };
+    setLoading(true); // Set loading state
 
-    return (
-        <div className="flex justify-center items-center h-screen bg-gradient-to-r from-customPurple-500 to-customPurple-700">
-            <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center mb-4">Forgot Password</h2>
-                <input
-                    type="text"
-                    placeholder="Email"
-                    className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${emailError ? 'border-red-500' : ''}`}
-                    value={emailId}
-                    onChange={(e) => setEmailId(e.target.value)}
-                />
-                {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-                <div className="mb-5"></div>
-                <input
-                    type="password"
-                    placeholder="New Password"
-                    className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${passwordError ? 'border-red-500' : ''}`}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-                <button
-                    className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                    onClick={handleSignup}
-                >
-                    Submit
-                </button>
-                <div className="mb-5"></div>
-                <p className="text-red-500">{errorMessage}</p>
-                <p className="text-green-500">{successMessage}</p>
-            </div>
+    try {
+      const response = await axios.post('/forgot', { emailId, password, repassword });
+      console.log('Password reset successful:', response.data);
+      setModalMessage(response.data.message);
+      setShowModal(true);
+      
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+      setErrorMessage(message);
+    } 
+    finally {
+      setLoading(false); // Reset loading state
+    }
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    window.location.href = '/login'; // Redirect to login page after modal close
+  };
+  return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-customPurple-500 to-customPurple-700">
+      <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">Reset Password</h2>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Email"
+            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorMessage ? 'border-red-500' : ''}`}
+            value={emailId}
+            onChange={(e) => {
+              setEmailId(e.target.value);
+              if (errorMessage) setErrorMessage(''); // Clear error on input change
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (errorMessage || passwordError) {
+                setErrorMessage('');
+                setPasswordError(''); // Clear errors on input change
+              }
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Re-Enter Password"
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={repassword}
+            onChange={(e) => {
+              setRePassword(e.target.value);
+              if (errorMessage || passwordError) {
+                setErrorMessage('');
+                setPasswordError(''); // Clear errors on input change
+              }
+            }}
+          />
+          <button
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+            onClick={handleLogin}
+            disabled={loading} // Disable button while loading
+          >
+            {loading ? 'Processing...' : 'Confirm'}
+          </button>
+          {errorMessage && (
+            <p className="text-red-500 text-center mt-4">{errorMessage}</p>
+          )}
+          {passwordError && (
+            <p className="text-red-500 text-center mt-4">{passwordError}</p>
+          )}
+           {showModal && (
+          <Modal message={modalMessage} onClose={handleCloseModal} />
+        )}
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
-export default ForgotPassword;
+export default LoginForm;

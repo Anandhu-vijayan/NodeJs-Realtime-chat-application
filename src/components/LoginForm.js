@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from '../axios';
 import "../styles/output.css"; // Ensure Tailwind is set up correctly
+import { Link } from 'react-router-dom';
+
 
 const LoginForm = () => {
   const [emailId, setEmailId] = useState('');
@@ -26,12 +28,16 @@ const LoginForm = () => {
       // Send a request to your backend API for login
       const response = await axios.post('/login', { emailId, password });
       console.log('Login successful:', response.data);
+      const token = response.data.token; // Assuming the token is in response.data.token
+      const joinFlag=response.data.jFlag;
+      localStorage.setItem('token', token);
+      if(joinFlag === 1)
+      {
+      window.location.href = '/next-page';
 
-      // Store the user's token for authentication
-      localStorage.setItem('token', response.data.token); // Store JWT token
-
-      // Redirect to the home page or another appropriate route
-      window.location.href = '/home';
+      }else{
+      window.location.href = '/dashboard';
+      }
     } catch (error) {
       console.error('Error logging in:', error);
       const message = error.response?.data?.message || 'Invalid credentials. Please try again.';
@@ -76,14 +82,12 @@ const LoginForm = () => {
           </button>
           <div className="mb-5"></div>
           <p className='flex justify-center'><a href='/signup'>🙅‍♂️Don't Have an Account? SignUp</a></p>
-          
           {errorMessage && (
             <p className="text-red-500 text-center mt-4">{errorMessage}</p>
           )}
         </div>
         <div className="mt-6 text-center">
-
-          <a href='/forgotpass' className="text-blue-500 hover:underline">Forgot Password?</a>
+        <Link to='/forgotpass' className="text-blue-500 hover:underline">🔑Forgot Password❓</Link>
         </div>
       </div>
     </div>

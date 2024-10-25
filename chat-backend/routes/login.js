@@ -22,8 +22,9 @@ router.post('/login', async (req, res) => {
             if (!isPasswordValid) {
                 return res.status(401).json({ message: 'Invalid credentials' });
             }
-            const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            return res.json({ token });
+            const jFlag=user.join_flag;
+            const token = jwt.sign({ id: user.user_id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            return res.json({ token , jFlag});
         }
     } catch (error) {
         console.error('Error during login:', error);
