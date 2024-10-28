@@ -9,6 +9,7 @@ const verifyToken = require('./routes/verify-token')
 const saveData = require('./routes/saveData')
 const peopleList = require('./routes/PeopleList')
 const sendRequest = require('./routes/sendRequest')
+const notifiCation = require('./routes/notification')
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON requests
@@ -27,6 +28,8 @@ app.use('/api',verifyToken);
 app.use('/api',saveData);
 app.use('/api',peopleList);
 app.use('/api',sendRequest);
+app.use('/api',notifiCation);
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 3000;
