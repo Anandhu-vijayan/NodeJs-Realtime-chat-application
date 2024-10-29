@@ -6,7 +6,7 @@ router.post('/send-request', async (req, res) => {
   const { sender_id, recipient_id } = req.body;
   
     try {
-      // console.log("datas:",sender_id,"data",recipient_id)
+      console.log("datas:",sender_id,"data",recipient_id)
       const existingRequest = await pool.query(
         'SELECT * FROM chat.request_table WHERE sender_id = $1 AND recipient_id = $2 AND status = $3',
         [sender_id, recipient_id, 'pending']

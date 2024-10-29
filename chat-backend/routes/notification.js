@@ -4,7 +4,6 @@ const router = express.Router();
 
 router.get('/friend-requests', async (req, res) => {
     const { userId } = req.query;
-  
     try {
       const result = await pool.query(
         `SELECT u.name,u.profile_pic,r.sender_id, r.status FROM chat.request_table r
