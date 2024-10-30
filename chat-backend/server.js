@@ -18,7 +18,10 @@ const { Server } = require('socket.io');
 const app = express();
 app.use(express.json()); // Middleware to parse JSON requests
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001', // Allow only this origin
+    credentials: true, // Enable if your requests require credentials (e.g., cookies)
+}));
 
 // Check database connection
 checkConnection();
@@ -37,9 +40,15 @@ app.use('/api', notifiCation);
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Create an HTTP server and attach Socket.IO
+// Create an HTTP server and attach Socket.IO with CORS configuration
 const server = http.createServer(app);
-const io = new Server(server); // Initialize Socket.IO
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:3001', // The front-end URL
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 // Handle WebSocket connections
 io.on('connection', (socket) => {

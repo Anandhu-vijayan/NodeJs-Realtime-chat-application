@@ -13,7 +13,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
 
     const fetchFriendRequests = async () => {
         try {
-            const response = await axios.get('/friend-requests', {
+            const response = await axios.get('/friend-requests', {  
                 params: { userId: currentUser.user_id },
             });
             setFriendRequests(response.data);
