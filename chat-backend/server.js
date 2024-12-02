@@ -10,6 +10,7 @@ const saveData = require('./routes/saveData');
 const peopleList = require('./routes/PeopleList');
 const sendRequest = require('./routes/sendRequest');
 const notifiCation = require('./routes/notification');
+const acceptRequest = require('./routes/acceptRequest');
 
 // Import http and socket.io
 const http = require('http');
@@ -36,6 +37,7 @@ app.use('/api', saveData);
 app.use('/api', peopleList);
 app.use('/api', sendRequest);
 app.use('/api', notifiCation);
+app.use('/api', acceptRequest);
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
