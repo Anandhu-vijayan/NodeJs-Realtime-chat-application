@@ -17,6 +17,17 @@ module.exports = {
         customBlack:{
           500 : '#253239',
           700 : '#253239',
+          100 : '#1d2a35',
+        },
+        customBlue:{
+          100 : '#282a35',
+        },
+        customGreen:{
+          100 : '#04aa6d',
+        },
+        chatBot:{
+          100 : '#1c4b57',
+          200 : '#0b9cff',
         },
       },
     },

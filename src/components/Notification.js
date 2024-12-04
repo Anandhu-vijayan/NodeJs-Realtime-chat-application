@@ -13,7 +13,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
 
     const fetchFriendRequests = async () => {
         try {
-            const response = await axios.get('/friend-requests', {  
+            const response = await axios.get('/friend-requests', {
                 params: { userId: currentUser.user_id },
             });
             setFriendRequests(response.data);
@@ -42,7 +42,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
             // Clean up the event listener on component unmount
             socket.off('notificationReceived');
         };
-    }, );
+    },);
 
     return (
         <div className="relative">
@@ -52,7 +52,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6 text-gray-800 cursor-pointer"
+                className="w-6 h-6 text-white cursor-pointer"
                 onClick={() => setShowRequests(!showRequests)}
             >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 22c1.104 0 2-.896 2-2H10c0 1.104.896 2 2 2zm6-6V10a6 6 0 10-12 0v6l-2 2v1h16v-1l-2-2z" />
@@ -65,13 +65,25 @@ const Notification = ({ showRequests, setShowRequests }) => {
             )}
 
             {showRequests && (
-                <div className="absolute bg-white border border-gray-300 rounded-lg p-8 left-20 mt-4 w-96 shadow-lg">
+                <div
+                    className="fixed bg-white border border-gray-300 rounded-lg p-8 top-16 left-[400px] w-96 shadow-lg z-50"
+                >
                     {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
 
                     <div className="flex justify-between items-center mb-2">
                         <h4 className="font-semibold text-gray-700">Friend Requests</h4>
-                        <button onClick={() => setShowRequests(false)} className="text-gray-500 hover:text-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <button
+                            onClick={() => setShowRequests(false)}
+                            className="text-gray-500 hover:text-gray-700"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -79,16 +91,37 @@ const Notification = ({ showRequests, setShowRequests }) => {
                     {friendRequests.length > 0 ? (
                         <ul className="space-y-4">
                             {friendRequests.map((person) => (
-                                <li key={person.user_id} className="people-item p-4 bg-white shadow rounded-lg w-150">
+                                <li
+                                    key={person.user_id}
+                                    className="people-item p-4 bg-white shadow rounded-lg"
+                                >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
-                                            <img src={`http://localhost:3000/uploads/${person.profile_pic}`} alt={person.name} className="w-12 h-12 rounded-full mr-4 object-cover" />
+                                            <img
+                                                src={`http://localhost:3000/uploads/${person.profile_pic}`}
+                                                alt={person.name}
+                                                className="w-12 h-12 rounded-full mr-4 object-cover"
+                                            />
                                             <span>{person.name}</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <button onClick={() => acceptRequestClick(person)} className="flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg ml-4">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-2 h-2 mr-2">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            <button
+                                                onClick={() => acceptRequestClick(person)}
+                                                className="flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg ml-4"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    strokeWidth={1.5}
+                                                    stroke="currentColor"
+                                                    className="w-2 h-2 mr-2"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        d="M4.5 12.75l6 6 9-13.5"
+                                                    />
                                                 </svg>
                                                 Accept
                                             </button>
@@ -102,6 +135,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
                     )}
                 </div>
             )}
+
         </div>
     );
 };
