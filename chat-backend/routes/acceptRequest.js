@@ -4,9 +4,8 @@ const router = express.Router();
 
 router.post('/accept-request', async (req, res) => {
     const { sender_id, recipient_id } = req.body;
-  
+
     try {
-        console.log(sender_id,recipient_id)
       // Update the request status to 'accepted'
       const updateQuery = `
         UPDATE chat.request_table

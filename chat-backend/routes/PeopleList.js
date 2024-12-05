@@ -14,7 +14,7 @@ router.get('/users', async (req, res) => {
           u.profile_pic,
           CASE 
             WHEN r.sender_id = $1 THEN r.status  -- Current user sent the request
-            WHEN r.recipient_id = $1 AND  r.status = 'Pending' THEN 'Accept' -- Current user received the request
+            WHEN r.recipient_id = $1 AND  r.status = 'pending' THEN 'Accept' -- Current user received the request
             WHEN r.recipient_id = $1 THEN r.status
             ELSE 'Send Request'
           END AS request_status

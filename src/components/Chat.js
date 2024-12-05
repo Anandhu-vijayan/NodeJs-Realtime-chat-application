@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 import axios from '../axios';
 import Notification from './Notification';
 import ChatView from './ChatView';
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:3000');
 
 const ChatHomePage = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -51,7 +53,22 @@ const ChatHomePage = () => {
       fetchChat();
     }
   }, [activeTab, currentUser]); // Now no missing dependency
-
+  useEffect(() => {
+    // ...
+    socket.on('friendRequestAccepted', (userId) => {
+      setPeople((prevPeople) => {
+        const updatedPeople = prevPeople.map((person) => {
+          if (person.user_id === userId) {
+            return { ...person, request_status: 'Accepted' };
+          }
+          return person;
+        });
+        return updatedPeople;
+      });
+    });
+  
+    // ...
+  });
 
   const handleRequestClick = async (recipient) => {
     try {
@@ -283,10 +300,15 @@ const ChatHomePage = () => {
           >
             Invite
           </button>
-          <Notification showRequests={showRequests} setShowRequests={setShowRequests} />
+          <Notification
+            showRequests={showRequests}
+            setShowRequests={setShowRequests}
+            setActiveTab={setActiveTab}  // Pass setActiveTab as a prop
+          />
+
         </div>
-        {activeTab === 'chat' ? <ChatList /> : <PeopleList />}
-      </div>
+        {activeTab === 'people' ? <PeopleList /> : <ChatList />}
+        </div>
       <ChatView selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
 
     </div>

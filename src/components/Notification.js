@@ -1,4 +1,3 @@
-// Notification.js
 import React, { useEffect, useState } from 'react';
 import axios from '../axios';
 import { useAuth } from '../hooks/useAuth';
@@ -6,7 +5,7 @@ import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3000'); // Connect to your Socket.IO server
 
-const Notification = ({ showRequests, setShowRequests }) => {
+const Notification = ({ showRequests, setShowRequests, setActiveTab }) => {
     const [friendRequests, setFriendRequests] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const currentUser = useAuth();
@@ -19,27 +18,47 @@ const Notification = ({ showRequests, setShowRequests }) => {
             setFriendRequests(response.data);
         } catch (error) {
             console.error("Error fetching friend requests:", error);
-            setErrorMessage('Errors fetching friend requests.');
+            setErrorMessage('Error fetching friend requests.');
         }
     };
 
     const acceptRequestClick = async (recipient) => {
-        // Accept request logic here...
+        try {
+            const response = await axios.post('./accept-request', {
+                sender_id: recipient.sender_id, // The original sender of the request
+                recipient_id: currentUser.user_id, // The current user accepting the request
+            });
+
+            if (response.status === 200) {
+                socket.emit('friendRequestAccepted', recipient.user_id); // Emit the event
+
+                setFriendRequests((prevRequests) =>
+                    prevRequests.filter((req) => req.sender_id !== recipient.sender_id)
+                );
+                // Successfully accepted the friend request, so switch the tab to 'people'
+                setActiveTab('people'); // Trigger this action
+            }
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || 'Failed to accept the request.';
+            setErrorMessage(errorMsg);
+        } finally {
+            setTimeout(() => {
+                setErrorMessage('');
+            }, 2000);
+        }
     };
 
+
     useEffect(() => {
-        // Fetch friend requests on component mount and when currentUser changes
         if (currentUser && currentUser.user_id) {
             fetchFriendRequests();
         }
 
-        // Listen for incoming notifications about friend requests
         socket.on('notificationReceived', (newRequest) => {
             setFriendRequests((prevRequests) => [...prevRequests, newRequest]);
         });
 
         return () => {
-            // Clean up the event listener on component unmount
             socket.off('notificationReceived');
         };
     },);
@@ -65,9 +84,7 @@ const Notification = ({ showRequests, setShowRequests }) => {
             )}
 
             {showRequests && (
-                <div
-                    className="fixed bg-white border border-gray-300 rounded-lg p-8 top-16 left-[400px] w-96 shadow-lg z-50"
-                >
+                <div className="fixed bg-white border border-gray-300 rounded-lg p-8 top-16 left-[400px] w-96 shadow-lg z-50">
                     {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
 
                     <div className="flex justify-between items-center mb-2">
@@ -135,7 +152,6 @@ const Notification = ({ showRequests, setShowRequests }) => {
                     )}
                 </div>
             )}
-
         </div>
     );
 };
