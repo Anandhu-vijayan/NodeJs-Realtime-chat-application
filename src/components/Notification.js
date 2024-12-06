@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../axios';
+import { useContext } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { io } from 'socket.io-client';
+import { FriendRequestContext } from '../context/FriendRequestContext';
 
 const socket = io('http://localhost:3000'); // Connect to your Socket.IO server
 
-const Notification = ({ showRequests, setShowRequests, setActiveTab }) => {
+const Notification = ({ showRequests, setShowRequests, setActiveTab ,onAcceptRequest  }) => {
+    const { addAcceptedRequest } = useContext(FriendRequestContext);
     const [friendRequests, setFriendRequests] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const currentUser = useAuth();
+    const { acceptRequest } = useContext(FriendRequestContext);
 
     const fetchFriendRequests = async () => {
         try {
@@ -25,29 +29,24 @@ const Notification = ({ showRequests, setShowRequests, setActiveTab }) => {
     const acceptRequestClick = async (recipient) => {
         try {
             const response = await axios.post('./accept-request', {
-                sender_id: recipient.sender_id, // The original sender of the request
-                recipient_id: currentUser.user_id, // The current user accepting the request
+                sender_id: recipient.sender_id,
+                recipient_id: currentUser.user_id,
             });
 
             if (response.status === 200) {
-                socket.emit('friendRequestAccepted', recipient.user_id); // Emit the event
-
+                socket.emit('friendRequestAccepted', recipient.user_id);
+                addAcceptedRequest(recipient.sender_id); // Update context
+                acceptRequest(recipient.sender_id);
+                onAcceptRequest(recipient.sender_id);
                 setFriendRequests((prevRequests) =>
                     prevRequests.filter((req) => req.sender_id !== recipient.sender_id)
                 );
-                // Successfully accepted the friend request, so switch the tab to 'people'
-                setActiveTab('people'); // Trigger this action
+                setActiveTab('people');
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || 'Failed to accept the request.';
-            setErrorMessage(errorMsg);
-        } finally {
-            setTimeout(() => {
-                setErrorMessage('');
-            }, 2000);
+            console.error(error);
         }
     };
-
 
     useEffect(() => {
         if (currentUser && currentUser.user_id) {
