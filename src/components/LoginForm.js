@@ -26,11 +26,12 @@ const LoginForm = () => {
 
     try {
       // Send a request to your backend API for login
+      console.log("loginn......");
       const response = await axios.post('/login', { emailId, password });
       console.log('Login successful:', response.data);
       const token = response.data.token; // Assuming the token is in response.data.token
       const joinFlag=response.data.jFlag;
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
       if(joinFlag === 1)
       {
       window.location.href = '/next-page';

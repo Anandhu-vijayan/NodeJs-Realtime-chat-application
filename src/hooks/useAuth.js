@@ -5,7 +5,7 @@ export function useAuth() {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Ensure the token is in localStorage
+    const token = sessionStorage.getItem('token'); // Ensure the token is in sessionStorage
     // console.log('Token found:', token);
 
     if (token) {
@@ -19,7 +19,7 @@ export function useAuth() {
         });
       } catch (error) {
         console.error('Error decoding token:', error);
-        localStorage.removeItem('token'); // Remove invalid token
+        sessionStorage.removeItem('token'); // Remove invalid token
         window.location.href = '/login'; // Redirect to login if token is invalid
       }
     } else {

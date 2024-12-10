@@ -106,7 +106,7 @@ const SignUpForm = () => {
         try {
             const response = await axios.post('/verify-otp', { emailId, otp, password });
             console.log('OTP verified successfully:', response.data);
-            localStorage.setItem('token', response.data.token);
+            sessionStorage.setItem('token', response.data.token);
             window.location.href = '/login';
         } catch (error) {
             console.log('Received request to verify OTP:', emailId, otp);

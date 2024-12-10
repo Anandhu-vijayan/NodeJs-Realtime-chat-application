@@ -3,6 +3,10 @@ import { useAuth } from '../hooks/useAuth';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
+const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Adjust format as needed
+};
 const socket = io("http://localhost:3000");
 
 const ChatView = ({ selectedChat, setSelectedChat }) => {
@@ -77,7 +81,7 @@ const ChatView = ({ selectedChat, setSelectedChat }) => {
             {selectedChat ? (
                 <>
                     <header className="flex items-center justify-between border-b p-4 bg-customBlack-100">
-                        <div className="flex items-center ">
+                        <div className="flex items-center">
                             <img
                                 src={`http://localhost:3000/uploads/${selectedChat.profile_pic}`}
                                 alt={selectedChat.name}
@@ -92,16 +96,19 @@ const ChatView = ({ selectedChat, setSelectedChat }) => {
                             Close
                         </button>
                     </header>
-                    <div className="messages flex flex-col gap-4 p-4 overflow-y-auto h-full ">
+                    <div className="messages flex flex-col gap-4 p-4 overflow-y-auto h-full">
                         {messages.map((message, index) => (
                             <div
                                 key={index}
                                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg break-words mr-16 ml-16 ${message.sender_id === currentUser.user_id
-                                        ? 'bg-chatBot-100 text-white self-end'
-                                        : 'bg-chatBot-200 text-gray-800 self-start'
+                                    ? 'bg-chatBot-100 text-white self-end'
+                                    : 'bg-chatBot-200 text-white self-start'
                                     }`}
                             >
-                                {message.text}
+                                <div>{message.text}</div>
+                                <div className="text-xs text-gray-400 mt-1 text-right">
+                                    {formatDate(message.timestamp)}
+                                </div>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
@@ -119,10 +126,9 @@ const ChatView = ({ selectedChat, setSelectedChat }) => {
                                 type="submit"
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 hover:text-blue-700 focus:outline-none"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                                 </svg>
-
                             </button>
                         </form>
                     </footer>

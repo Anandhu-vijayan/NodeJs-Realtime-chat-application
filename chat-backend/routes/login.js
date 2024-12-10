@@ -11,7 +11,7 @@ router.post('/login', async (req, res) => {
     try {
         const loginData = `SELECT * FROM chat.user_details WHERE email = $1`;
         const loginFetchData = await pool.query(loginData, [emailId]);
-
+        console.log(loginFetchData);
         // Check if the user exists
         if (loginFetchData.rows.length === 0) {
             return res.status(404).json({ message: 'Email not registered' });

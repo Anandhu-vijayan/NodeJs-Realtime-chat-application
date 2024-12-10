@@ -2,7 +2,7 @@ import {jwtDecode} from 'jwt-decode';
 
 const authService = {
   isAuthenticated: () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
       return decodedToken.exp > Date.now() / 1000;
@@ -11,7 +11,7 @@ const authService = {
   },
 
   getToken: () => {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token');
   },
 
   // ... other authentication methods (e.g., login, register)

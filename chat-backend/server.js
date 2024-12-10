@@ -22,7 +22,7 @@ const { router: saveMessageRoutes, socketLogic: saveMessageSocket } = require('.
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: '*',
     credentials: true,
 }));
 
@@ -50,7 +50,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3001', // The front-end URL
+        origin: '*', // The front-end URL
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -77,7 +77,7 @@ io.on('connection', (socket) => {
 saveMessageSocket(io); // Pass Socket.IO to saveMessage
 
 // Start the server on the specified port
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-    // console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

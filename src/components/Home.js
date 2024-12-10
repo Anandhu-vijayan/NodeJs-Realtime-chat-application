@@ -12,8 +12,8 @@ const WelcomePage = () => {
   const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
-    // Retrieve the token from localStorage
-    const storedToken = localStorage.getItem('token');
+    // Retrieve the token from sessionStorage
+    const storedToken = sessionStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
       const validateToken = async (token) => {
@@ -30,7 +30,7 @@ const WelcomePage = () => {
         } catch (error) {
           console.error('Token validation error:', error); // Log the error
           setAuthError('Invalid or expired session, please login again.');
-          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
           navigate('/login');
         } finally {
           setLoading(false);

@@ -23,3 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 chat-backend/chat.env
+docker-compose.yml
+Dockerfile
+Dockerfile.backend

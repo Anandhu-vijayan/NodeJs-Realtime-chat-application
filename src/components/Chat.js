@@ -61,11 +61,14 @@ const ChatHomePage = () => {
     setPeople((prevPeople) =>
       prevPeople.map((person) =>
         acceptedRequests.includes(person.user_id)
-          ? { ...person, request_status: 'Accepted' }
+          ? { ...person, request_status: 'accepted' }
           : person
       )
     );
-  }, [acceptedRequests]);
+    if (activeTab !== 'chat') {
+      setActiveTab('people');
+    }
+  }, [acceptedRequests, activeTab]);
 
   useEffect(() => {
     // ...
@@ -73,7 +76,7 @@ const ChatHomePage = () => {
       setPeople((prevPeople) => {
         const updatedPeople = prevPeople.map((person) => {
           if (person.user_id === userId) {
-            return { ...person, request_status: 'Accepted' };
+            return { ...person, request_status: 'accepted' };
           }
           return person;
         });
@@ -135,6 +138,7 @@ const ChatHomePage = () => {
               : person
           )
         );
+        setActiveTab('people');
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Failed to accept the request.';
@@ -149,7 +153,7 @@ const ChatHomePage = () => {
 
   const ChatList = () => (
     <div className="chat-list">
-      <h2 className="text-gray-800 font-bold mb-4">Your Chats</h2>
+      <h2 className="text-white font-bold mb-4">Your Chats</h2>
       {loading ? (
         // Loading spinner
         <div className="flex justify-center items-center">
@@ -189,11 +193,20 @@ const ChatHomePage = () => {
                   alt={person.name}
                   className="w-12 h-12 rounded-full mr-4 object-cover"
                 />
-                <span>{person.name}</span>
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-900">{person.name}</span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(person.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 truncate">{person.text || 'No messages yet.'}</p>
+                </div>
               </div>
             </li>
           ))}
         </ul>
+
       ) : (
         // Only show "No contacts available" when loading is false and no data
         <div>No contacts available.</div>
@@ -203,7 +216,7 @@ const ChatHomePage = () => {
 
   const PeopleList = () => (
     <div className="people-list">
-      <h2 className="text-gray-800 font-bold mb-4">Connect Peoples</h2>
+      <h2 className="text-white font-bold mb-4">Connect Peoples</h2>
       {loading && <div>Loading...</div>}
       {successMessage && <div className="text-green-500 mb-4">{successMessage}</div>}
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
@@ -321,7 +334,7 @@ const ChatHomePage = () => {
           />
 
         </div>
-        {activeTab === 'people' ? <PeopleList /> : <ChatList />}
+        {activeTab === 'chat' ? <ChatList /> : <PeopleList />}
       </div>
       <ChatView selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
 
