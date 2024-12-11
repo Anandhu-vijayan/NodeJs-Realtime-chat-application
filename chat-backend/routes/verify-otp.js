@@ -46,7 +46,7 @@ router.post('/verify-otp', async (req, res) => {
       user: insertUserResult.rows[0],
     });
   } catch (error) {
-    console.error('Error verifying OTP:', error);
+    console.error('Errors verifying OTP:', error);
     res.status(500).json({ message: 'Error verifying OTP' });
   }
 });

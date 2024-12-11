@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 // const crypto = require('crypto');
 // const secretKey = crypto.randomBytes(64).toString('hex');
-// console.log(secretKey);
 router.post('/login', async (req, res) => {
     const { emailId, password } = req.body;
     try {

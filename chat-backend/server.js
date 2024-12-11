@@ -17,6 +17,8 @@ const sendRequest = require('./routes/sendRequest');
 const notifiCation = require('./routes/notification');
 const acceptRequest = require('./routes/acceptRequest');
 const chatList = require('./routes/chatUsers');
+const resendOtp = require('./routes/resendOtp');
+
 const { router: saveMessageRoutes, socketLogic: saveMessageSocket } = require('./routes/saveMessage');
 // Import http and socket.io
 const app = express();
@@ -42,6 +44,7 @@ app.use('/api', notifiCation);
 app.use('/api', acceptRequest);
 app.use('/api', saveMessageRoutes);
 app.use('/api', chatList);
+app.use('/api', resendOtp);
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

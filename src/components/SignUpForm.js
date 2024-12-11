@@ -13,6 +13,8 @@ const SignUpForm = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // State for loading animation
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,6 +62,7 @@ const SignUpForm = () => {
         if (!isEmailValid || !isPasswordValid) {
             return;
         }
+        setIsLoading(true);
 
         try {
             const response = await axios.post('/signup', { emailId });
@@ -82,32 +85,37 @@ const SignUpForm = () => {
             // Clear the error message after 5 seconds
             setTimeout(() => setErrorMessage(''), 5000);
         }
+        finally {
+            setIsLoading(false); // Hide loader
+        }
     };
 
     const handleResendOtp = async () => {
         try {
-            const response = await axios.post('/signup', { emailId });
-            console.successMessage(response);
-            setSuccessMessage('OTP sent successfully to email');
-            setTimer(30);  // Restart the 30-second timer
-            setIsResendEnabled(false);
-            setIsOtpInputDisabled(false);  // Enable OTP input on resend
-
-            setTimeout(() => setSuccessMessage(''), 5000);
+          const response = await axios.post('/resend_otp', { emailId });
+          console.log('Response from server:', response.data);
+          setSuccessMessage('OTP sent successfully to email');
+          setTimer(30); // Restart the 30-second timer
+          setIsResendEnabled(false);
+          setIsOtpInputDisabled(false);
+      
+          setTimeout(() => setSuccessMessage(''), 5000);
         } catch (error) {
-            console.error('Error resending OTP:', error.response ? error.response.data : error.message);
-            setErrorMessage('Failed to resend OTP. Please try again.');
-
-            setTimeout(() => setErrorMessage(''), 5000);
+          console.error('Error resending OTP:', error.response ? error.response.data : error.message);
+          setErrorMessage(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
+      
+          setTimeout(() => setErrorMessage(''), 5000);
         }
-    };
+      };
+      
 
     const handleVerifyOtp = async () => {
         try {
             const response = await axios.post('/verify-otp', { emailId, otp, password });
             console.log('OTP verified successfully:', response.data);
             sessionStorage.setItem('token', response.data.token);
-            window.location.href = '/login';
+            setIsModalVisible(true);
+            // window.location.href = '/login';
         } catch (error) {
             console.log('Received request to verify OTP:', emailId, otp);
             console.error('Error verifying OTP:', error);
@@ -116,7 +124,10 @@ const SignUpForm = () => {
             setTimeout(() => setErrorMessage(''), 5000);
         }
     };
-
+    const closeModal = () => {
+        setIsModalVisible(false);
+        window.location.href = '/login'; // Redirect to login after closing the modal
+    };
     return (
         <div className="flex justify-center items-center h-screen bg-gradient-to-r from-customPurple-500 to-customPurple-700">
             <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
@@ -127,7 +138,7 @@ const SignUpForm = () => {
                     className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${emailError ? 'border-red-500' : ''}`}
                     value={emailId}
                     onChange={(e) => setEmailId(e.target.value)}
-                    // disabled={isOtpSent}
+                // disabled={isOtpSent}
                 />
                 {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                 <div className="mb-5"></div>
@@ -137,16 +148,21 @@ const SignUpForm = () => {
                     className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${passwordError ? 'border-red-500' : ''}`}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    // disabled={isOtpSent}
+                // disabled={isOtpSent}
                 />
                 {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
                 <div className="mb-5"></div>
                 <button
-                    className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                    className={`w-full bg-blue-500 text-white px-4 py-2 rounded-md flex justify-center items-center ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+                        }`}
                     onClick={handleSignup}
-                    disabled={isOtpSent}  // Disable button after OTP is sent
+                    disabled={isOtpSent || isLoading}  // Disable button after OTP is sent
                 >
-                    {isOtpSent ? 'OTP Sent' : 'Send OTP'}
+                    {isLoading ? (
+                        <div className="loader"></div> // Add the class for your loading spinner
+                    ) : (
+                        isOtpSent ? 'OTP Sent' : 'Send OTP'
+                    )}
                 </button>
                 <div className="mb-5"></div>
 
@@ -190,7 +206,22 @@ const SignUpForm = () => {
 
                 {isOtpSent && <p className="text-gray-500">Time left: {timer}s</p>}
             </div>
+            {isModalVisible && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white rounded-lg p-8 shadow-lg text-center">
+                        <h2 className="text-2xl font-bold mb-4">Registration Successful!</h2>
+                        <p className="text-gray-700 mb-6">You have been successfully registered. Please log in to continue.</p>
+                        <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                            onClick={closeModal}
+                        >
+                            Go to Login
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
 
